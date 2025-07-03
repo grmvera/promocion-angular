@@ -19,7 +19,7 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   login() {
     this.errorMessage = '';
@@ -34,8 +34,6 @@ export class LoginComponent {
 
     this.authService.login(cleanUsername, cleanPassword)
       .subscribe(users => {
-        console.log('Respuesta backend:', users);
-
         if (users.length === 0) {
           this.errorMessage = 'Usuario o contraseña incorrectos.';
           return;
@@ -45,18 +43,14 @@ export class LoginComponent {
 
         localStorage.setItem('currentUser', JSON.stringify(user));
 
-        if (user.role === 'analyst') {
-          this.router.navigate(['/analysts']);
-        } else if (user.role === 'manager') {
-          this.router.navigate(['/sales-management']);
-        } else if (user.role === 'accounting') {
-          this.router.navigate(['/sales-management']);
+        if (user.role === 'analyst' || user.role === 'manager') {
+          this.router.navigate(['/products']);
         } else {
           this.errorMessage = 'Rol no reconocido.';
         }
-      }, error => {
-        console.error(error);
-        this.errorMessage = 'Error al conectar con el servidor.';
+      }, err => {
+        this.errorMessage = 'Error de conexión. Intenta más tarde.';
       });
   }
+
 }

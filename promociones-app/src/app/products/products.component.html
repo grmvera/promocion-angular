@@ -1,0 +1,136 @@
+<div class="products-container">
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage" class="alert success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- User info -->
+  <div *ngIf="currentUser" class="user-card">
+    <div class="user-avatar">
+      <img *ngIf="currentUser?.picture?.large"
+           [src]="currentUser.picture?.large"
+           alt="Foto de {{ currentUser.name?.first }} {{ currentUser.name?.last }}">
+    </div>
+    <div class="user-details">
+      <h2>Bienvenido, <span class="user-name">{{ currentUser.name?.first }} {{ currentUser.name?.last }}</span></h2>
+      <p><strong>Rol:</strong> {{ currentUser.role | titlecase }}</p>
+      <p><strong>Email:</strong> {{ currentUser.email }}</p>
+    </div>
+  </div>
+
+  <!-- Analyst UI -->
+  <div *ngIf="isAnalyst">
+    <h3>Agregar producto a promoción</h3>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Producto</label>
+        <select [(ngModel)]="selectedProductId">
+          <option [ngValue]="null">Seleccione un producto</option>
+          <option *ngFor="let p of products" [ngValue]="p.id">
+            {{ p.name }} (${{ p.listPrice }})
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cantidad</label>
+        <input type="number" [(ngModel)]="selectedQuantity" />
+      </div>
+      <div class="form-group">
+        <label>Precio Promocional</label>
+        <input type="number" [(ngModel)]="selectedPromoPrice" />
+      </div>
+      <div class="form-group full">
+        <button class="btn-add" (click)="addProduct()">Añadir Producto</button>
+        <button class="btn-send" *ngIf="promoList.length > 0" (click)="sendPromos()">
+          Enviar Lista de Promos
+        </button>
+      </div>
+    </div>
+
+    <h3 *ngIf="promoList.length > 0">Lista de Promociones</h3>
+    <table *ngIf="promoList.length > 0">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Lista</th>
+          <th>Precio Promoción</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of promoList">
+          <td>{{ item.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ item.listPrice }}</td>
+          <td>${{ item.promoPrice }}</td>
+          <td>
+            <span [ngClass]="{
+              'status-approved': item.status === 'approved',
+              'status-rejected': item.status === 'rejected',
+              'status-pending': item.status === 'pending'
+            }">{{ item.status }}</span>
+          </td>
+          <td>
+            <button class="btn-delete"
+                    *ngIf="item.status === 'rejected'"
+                    (click)="deleteItem(item)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Manager UI -->
+  <div *ngIf="isManager">
+    <h3>Promociones para Revisión</h3>
+
+    <p *ngIf="promoList.length === 0">
+      No existen promociones por revisar.
+    </p>
+
+    <table *ngIf="promoList.length > 0">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Lista</th>
+          <th>Precio Promoción</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of promoList">
+          <td>{{ item.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ item.listPrice }}</td>
+          <td>${{ item.promoPrice }}</td>
+          <td>
+            <ng-container *ngIf="item.status === 'pending'; else approvedBlock">
+              <button class="btn-approve" (click)="approveItem(item)">✔ Aprobar</button>
+              <button class="btn-reject" (click)="rejectItem(item)">✖ Rechazar</button>
+            </ng-container>
+            <ng-template #approvedBlock>
+              <span class="status-approved">Aprobado</span>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="promoList.length > 0">
+      <button class="btn-green" (click)="approveAll()">Aprobar Lista de Promos</button>
+      <button class="btn-yellow" (click)="sendToEdit()" *ngIf="hasRejectedItems()">
+        Enviar a Edición
+      </button>
+    </div>
+  </div>
+</div>
