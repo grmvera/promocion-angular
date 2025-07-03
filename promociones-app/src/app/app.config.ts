@@ -1,12 +1,26 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Routes } from '@angular/router';
+import { importProvidersFrom } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
-import { routes } from './app.routes';
+export const appRoutes: Routes = [
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./auth/login/login.component')
+        .then(m => m.LoginComponent)
+  }
+];
 
-export const appConfig: ApplicationConfig = {
+export const appConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
-    provideRouter(routes)
+    provideRouter(appRoutes),
+    importProvidersFrom(HttpClientModule),
+    importProvidersFrom(FormsModule)
   ]
 };
