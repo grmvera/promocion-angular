@@ -8,7 +8,7 @@ Este proyecto es una aplicación en Angular para la gestión de promociones de p
 
 npm install
 
-###Ejecutar la aplicación
+### Ejecutar la aplicación
 
 ng serve
 
